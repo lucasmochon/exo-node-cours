@@ -1,59 +1,79 @@
-import { Tournament } from "../interface/tournamentInterface.js";
+import { CustomError } from "../../utils/CustomError";
+import TournamentModel from "../databases/models/tournament.model";
+import { TournamentCreate } from "../interface/tournamentCreateInterface";
+import { Tournament } from "../interface/tournamentInterface";
 
 class TournamentRepository {
-    private lastIndex: number = 2;
 
-    private tournaments: Tournament[] = [
-        {
-            id: 1,
-            nom: "champions valorant",
-            date: "2025-09-15",
-            lieu: "Paris",
-            participants: 16,
-            statut: "terminé",
-        },
-        {
-            id: 2,
-            nom: "rlcs",
-            date: "2025-09-20",
-            lieu: "monde",
-            participants: 8,
-            statut: "terminé",
-        },
-    ];
-
-
-    getAll(): Tournament[] {
-        return this.tournaments;
+    async getAll(): Promise<Tournament[]> {
+        console.info('tournamentRepository:getAll');
+        try {
+            const listTournaments = await TournamentModel.find().exec();
+            return listTournaments;
+        } catch (e: any) {
+            console.error("Erreur de récupération des tournois :", e);
+            throw new CustomError(500, "Erreur de récupération des tournois", e.message || "Internal Server Error");
+        }
     }
 
-    getById(id: number): Tournament | undefined {
-        return this.tournaments.find((t) => t.id === id);
+    async getById(id: number): Promise<Tournament> {
+        console.info('tournamentRepository:getById');
+        try {
+            const findOneTournament = await TournamentModel.findOne({ id }).exec();
+            if (!findOneTournament) {
+                throw new CustomError(404, "Tournoi non trouvé", `Aucun tournoi avec l'id ${id} n'a été trouvé`);
+            }
+            return findOneTournament;
+        } catch (e: any) {
+            if (e instanceof CustomError) throw e;
+            console.error("Erreur lors de la récupération du tournoi :", e);
+            throw new CustomError(500, "Erreur lors de la récupération du tournoi", e.message || "Internal Server Error");
+        }
     }
 
-    create(data: Omit<Tournament, "id">): Tournament {
-        const nouveauTournoi: Tournament = {
-            id: ++this.lastIndex,
-            ...data,
-        };
-        this.tournaments.push(nouveauTournoi);
-        return nouveauTournoi;
+    async create(data: TournamentCreate): Promise<Tournament> {
+        console.info('tournamentRepository:create');
+        try {
+            const lastTournament = await TournamentModel.findOne().sort({ id: -1 }).exec();
+            const newId = lastTournament ? lastTournament.id + 1 : 1;
+
+            const newTournament = new TournamentModel({ id: newId, ...data });
+            const createTournament = await newTournament.save();
+            return createTournament;
+        } catch (e: any) {
+            console.error("Erreur lors de la création du tournoi :", e);
+            throw new CustomError(500, "Impossible de créer le tournoi", e.message || "Internal Server Error");
+        }
     }
 
-    update(id: number, data: Partial<Tournament>): Tournament | null {
-        const index = this.tournaments.findIndex((t) => t.id === id);
-        if (index === -1) return null;
-
-        this.tournaments[index] = { ...this.tournaments[index], ...data };
-        return this.tournaments[index];
+    async update(id: number, data: Partial<Tournament>): Promise<Tournament> {
+        console.info('tournamentRepository:update');
+        try {
+            const updateTournament = await TournamentModel.findOneAndUpdate({ id }, data, { new: true }).exec();
+            if (!updateTournament) {
+                throw new CustomError(404, "Tournoi non trouvé", `Impossible de mettre à jour le tournoi avec l'id ${id}`);
+            }
+            return updateTournament;
+        } catch (e: any) {
+            if (e instanceof CustomError) throw e;
+            console.error("Erreur lors de la modification du tournoi :", e);
+            throw new CustomError(500, "Impossible de modifier le tournoi", e.message || "Internal Server Error");
+        }
     }
 
-    delete(id: number): Tournament | null {
-        const index = this.tournaments.findIndex((t) => t.id === id);
-        if (index === -1) return null;
-
-        const [deleted] = this.tournaments.splice(index, 1);
-        return deleted;
+    async delete(id: number): Promise<Tournament> {
+        console.info('tournamentRepository:delete');
+        try {
+            const deleteTournament = await TournamentModel.findOneAndDelete({ id }).exec();
+            if (!deleteTournament) {
+                throw new CustomError(404, "Tournoi non trouvé", `Impossible de supprimer le tournoi avec l'id ${id}`);
+            }
+            return deleteTournament;
+        } catch (e: any) {
+            if (e instanceof CustomError) throw e;
+            console.error("Erreur lors de la suppression du tournoi :", e);
+            throw new CustomError(500, "Impossible de supprimer le tournoi", e.message || "Internal Server Error");
+        }
     }
 }
 

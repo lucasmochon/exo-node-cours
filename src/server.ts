@@ -3,14 +3,15 @@ import mongoose from "mongoose";
 import tournamentRoutes from "./tournament/routes/tournamentRoutes";
 import dotenv from "dotenv";
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: '.env' });
 const app = express();
 const port = 3000;
 
 app.use(express.json());
 app.use("/", tournamentRoutes);
-if(process.env.DB_URI){
-    mongoose.connect(process.env.DB_URI)
+const uri = "mongodb+srv://mochonlucas_db_user:lYAiJIx5wDWyBUeU@tournament.0n25n67.mongodb.net/?retryWrites=true&w=majority&appName=tournament";
+
+mongoose.connect(uri)
     .then(() => {
         console.log('mongodb est connecté')
         app.listen(port, () => {
@@ -18,8 +19,5 @@ if(process.env.DB_URI){
     }) 
     })
     .catch(() => {
-        console.log('mongo est pas co !')
+        console.log('Erreur de connexion à a base de donnée')
     }) 
-} else 
-    console.log('mongo est pas co !')
-

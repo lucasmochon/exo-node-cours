@@ -1,20 +1,24 @@
 import { Tournament } from "../interface/tournamentInterface";
 import tournamentRepository from "../repository/tournamentRepository";
+import { CustomError } from "../../utils/CustomError";
 
 class TournamentService {
-    getAll() {
-        return tournamentRepository.getAll();
+
+    async getAll(): Promise<Tournament[]> {
+        return await tournamentRepository.getAll();
     }
 
-    getById(id: number) {
-        const tournoi = tournamentRepository.getById(id);
-        if (!tournoi) throw new Error("Tournoi non trouvé");
+    async getById(id: number): Promise<Tournament> {
+        const tournoi = await tournamentRepository.getById(id);
+        if (!tournoi) {
+            throw new CustomError(404, "Tournoi non trouvé", `Aucun tournoi avec l'id ${id} n'a été trouvé`);
+        }
         return tournoi;
     }
 
-    create(data: Tournament) {
+    async create(data: Tournament): Promise<Tournament> {
         if (!data.nom || !data.date || !data.lieu) {
-            throw new Error("nom, date et lieu sont obligatoires");
+            throw new CustomError(400, "Données manquantes", "Les champs nom, date et lieu sont obligatoires");
         }
 
         return tournamentRepository.create({
@@ -26,15 +30,19 @@ class TournamentService {
         });
     }
 
-    update(id: number, data: Tournament) {
-        const tournoi = tournamentRepository.update(id, data);
-        if (!tournoi) throw new Error("Tournoi non trouvé");
+    async update(id: number, data: Partial<Tournament>): Promise<Tournament> {
+        const tournoi = await tournamentRepository.update(id, data);
+        if (!tournoi) {
+            throw new CustomError(404, "Tournoi non trouvé", `Impossible de mettre à jour le tournoi avec l'id ${id}`);
+        }
         return tournoi;
     }
 
-    delete(id: number) {
-        const tournoi = tournamentRepository.delete(id);
-        if (!tournoi) throw new Error("Tournoi non trouvé");
+    async delete(id: number): Promise<Tournament> {
+        const tournoi = await tournamentRepository.delete(id);
+        if (!tournoi) {
+            throw new CustomError(404, "Tournoi non trouvé", `Impossible de supprimer le tournoi avec l'id ${id}`);
+        }
         return tournoi;
     }
 }

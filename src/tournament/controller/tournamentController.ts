@@ -1,74 +1,97 @@
 import { Request, Response } from 'express';
 import tournamentService from "../service/tournamentService";
+import { CustomError, sendCustomError } from "../../utils/CustomError";
 
 class TournamentController {
-    getAll(req: Request, res: Response): void {
-        const result = tournamentService.getAll();
-        res.status(200).json(result);
-    }
 
-    getById(req: Request, res: Response): void {
+    async getAll(req: Request, res: Response) {
         try {
-            const id = parseInt(req.params.id);
-
-            if (isNaN(id)) {
-                throw new Error("L'ID doit être un nombre valide");
-            }
-
-            const result = tournamentService.getById(id);
+            const result = await tournamentService.getAll();
             res.status(200).json(result);
-        } catch (error: any) {
-            res.status(404).json({ error: error.message });
+        } catch (err: any) {
+            if (err instanceof CustomError) {
+                sendCustomError(err, res);
+            } else {
+                sendCustomError(new CustomError(500, "Erreur interne du serveur", err.message), res);
+            }
         }
     }
 
-    create(req: Request, res: Response): void {
+    async getById(req: Request, res: Response) {
         try {
-            if (!req.body || Object.keys(req.body).length === 0) {
-                throw new Error("Le corps de la requête ne peut pas être vide");
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) {
+                throw new CustomError(400, "L'ID doit être un nombre valide");
             }
 
-            const result = tournamentService.create(req.body);
+            const result = await tournamentService.getById(id);
+            res.status(200).json(result);
+        } catch (err: any) {
+            if (err instanceof CustomError) {
+                sendCustomError(err, res);
+            } else {
+                sendCustomError(new CustomError(500, "Erreur interne du serveur", err.message), res);
+            }
+        }
+    }
+
+    async create(req: Request, res: Response) {
+        try {
+            if (!req.body || Object.keys(req.body).length === 0) {
+                throw new CustomError(400, "Le corps de la requête ne peut pas être vide");
+            }
+
+            const result = await tournamentService.create(req.body);
             res.status(201).json(result);
-        } catch (error: any) {
-            res.status(400).json({ error: error.message });
+        } catch (err: any) {
+            if (err instanceof CustomError) {
+                sendCustomError(err, res);
+            } else {
+                sendCustomError(new CustomError(500, "Erreur interne du serveur", err.message), res);
+            }
         }
     }
 
-    update(req: Request, res: Response): void {
+    async update(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
-
             if (isNaN(id)) {
-                throw new Error("L'ID doit être un nombre valide");
+                throw new CustomError(400, "L'ID doit être un nombre valide");
             }
 
             if (!req.body || Object.keys(req.body).length === 0) {
-                throw new Error("Le corps de la requête ne peut pas être vide");
+                throw new CustomError(400, "Le corps de la requête ne peut pas être vide");
             }
 
-            const result = tournamentService.update(id, req.body);
+            const result = await tournamentService.update(id, req.body);
             res.status(200).json(result);
-        } catch (error: any) {
-            res.status(404).json({ error: error.message });
+        } catch (err: any) {
+            if (err instanceof CustomError) {
+                sendCustomError(err, res);
+            } else {
+                sendCustomError(new CustomError(500, "Erreur interne du serveur", err.message), res);
+            }
         }
     }
 
-    delete(req: Request, res: Response): void {
+    async delete(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
-
             if (isNaN(id)) {
-                throw new Error("L'ID doit être un nombre valide");
+                throw new CustomError(400, "L'ID doit être un nombre valide");
             }
 
-            const result = tournamentService.delete(id);
+            const result = await tournamentService.delete(id);
             res.status(200).json({
                 message: "Tournoi supprimé avec succès",
                 tournoi: result,
             });
-        } catch (error: any) {
-            res.status(404).json({ error: error.message });
+        } catch (err: any) {
+            if (err instanceof CustomError) {
+                sendCustomError(err, res);
+            } else {
+                sendCustomError(new CustomError(500, "Erreur interne du serveur", err.message), res);
+            }
         }
     }
 }
