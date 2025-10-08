@@ -1,5 +1,5 @@
 import express from 'express';
-import tournamentContoller from '../controller/index';
+import tournamentContoller from '../controller/tournamentController';
 
 const router = express.Router();
 

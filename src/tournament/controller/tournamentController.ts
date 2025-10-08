@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import tournamentService from "../service/index";
+import tournamentService from "../service/tournamentService";
 
 class TournamentController {
     getAll(req: Request, res: Response): void {

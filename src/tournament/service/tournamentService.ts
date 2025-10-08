@@ -1,5 +1,5 @@
 import { Tournament } from "../interface/tournamentInterface";
-import tournamentRepository from "../repository/index";
+import tournamentRepository from "../repository/tournamentRepository";
 
 class TournamentService {
     getAll() {
