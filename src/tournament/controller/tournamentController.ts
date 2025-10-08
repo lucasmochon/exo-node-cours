@@ -1,74 +1,85 @@
 import { Request, Response } from 'express';
 import tournamentService from "../service/tournamentService";
+import { CustomError } from '../../utils/customError';
 
 class TournamentController {
-    getAll(req: Request, res: Response): void {
-        const result = tournamentService.getAll();
+    async getAll(req: Request, res: Response) {
+    try {
+      const filters = req.query;
+      const result = await tournamentService.getAllTournaments(filters);
+
+      res.status(200).json(result);
+    } catch (error: any) {
+      const status = error instanceof CustomError ? error.statusCode : 500;
+      res.status(status).json({ error: error.message });
+    }
+  }
+
+    async getOne(req: Request, res: Response) {
+    try {
+        const filters = req.query;
+        const result = await tournamentService.getOneTournament(filters);
+
         res.status(200).json(result);
+    } catch (error: any) {
+        const status = error instanceof CustomError ? error.statusCode : 500;
+        res.status(status).json({ error: error.message });
+    }
     }
 
-    getById(req: Request, res: Response): void {
-        try {
-            const id = parseInt(req.params.id);
-
-            if (isNaN(id)) {
-                throw new Error("L'ID doit être un nombre valide");
-            }
-
-            const result = tournamentService.getById(id);
-            res.status(200).json(result);
-        } catch (error: any) {
-            res.status(404).json({ error: error.message });
-        }
-    }
-
-    create(req: Request, res: Response): void {
+    async createOne(req: Request, res: Response) {
         try {
             if (!req.body || Object.keys(req.body).length === 0) {
-                throw new Error("Le corps de la requête ne peut pas être vide");
+                throw new CustomError("Le corps de la requête ne peut pas être vide", 400);
             }
 
-            const result = tournamentService.create(req.body);
+            const result = await tournamentService.createTournament(req.body);
             res.status(201).json(result);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            const status = error instanceof CustomError ? error.statusCode : 400;
+            res.status(status).json({ error: error.message });
         }
+        
     }
 
-    update(req: Request, res: Response): void {
-        try {
-            const id = parseInt(req.params.id);
+    
 
-            if (isNaN(id)) {
-                throw new Error("L'ID doit être un nombre valide");
+    async update(req: Request, res: Response) {
+        try {
+            const id = req.params.id;
+
+            if (!id) {
+                throw new CustomError("L'ID doit être un nombre valide", 400);
             }
 
             if (!req.body || Object.keys(req.body).length === 0) {
-                throw new Error("Le corps de la requête ne peut pas être vide");
+                throw new CustomError("Le corps de la requête ne peut pas être vide", 400);
             }
 
-            const result = tournamentService.update(id, req.body);
+            const result = await tournamentService.updateTournament(id, req.body);
             res.status(200).json(result);
         } catch (error: any) {
-            res.status(404).json({ error: error.message });
+            const status = error instanceof CustomError ? error.statusCode : 404;
+            res.status(status).json({ error: error.message });
         }
     }
 
-    delete(req: Request, res: Response): void {
+    async delete(req: Request, res: Response) {
         try {
-            const id = parseInt(req.params.id);
+            const id = req.params.id;
 
-            if (isNaN(id)) {
-                throw new Error("L'ID doit être un nombre valide");
+            if (!id) {
+                throw new CustomError("L'ID doit être un nombre valide", 400);
             }
 
-            const result = tournamentService.delete(id);
+            const result = await tournamentService.deleteTournament(id);
             res.status(200).json({
                 message: "Tournoi supprimé avec succès",
                 tournoi: result,
             });
         } catch (error: any) {
-            res.status(404).json({ error: error.message });
+            const status = error instanceof CustomError ? error.statusCode : 500;
+            res.status(status).json({ error: error.message });
         }
     }
 }

@@ -2,41 +2,68 @@ import { Tournament } from "../interface/tournamentInterface";
 import tournamentRepository from "../repository/tournamentRepository";
 
 class TournamentService {
-    getAll() {
-        return tournamentRepository.getAll();
+    async getAllTournaments(filters: Partial<Tournament>) {
+        try {
+            const tournaments = await tournamentRepository.allTournament(filters);
+            return tournaments;
+        } catch (error) {
+      console.error("GetAllTournamentsService", error);
+      throw new Error("Impossible de récupérer les tournois");
+    }
     }
 
-    getById(id: number) {
-        const tournoi = tournamentRepository.getById(id);
-        if (!tournoi) throw new Error("Tournoi non trouvé");
-        return tournoi;
+    async getOneTournament(filters: Partial<Tournament>) {
+        try {
+            const tournament = await tournamentRepository.oneTournament(filters);
+            return tournament;
+        } catch (error) {
+      console.error("GetOneTournamentService", error);
+      throw new Error("Impossible de récupérer le tournoi");
+    }
     }
 
-    create(data: Tournament) {
-        if (!data.nom || !data.date || !data.lieu) {
-            throw new Error("nom, date et lieu sont obligatoires");
-        }
-
-        return tournamentRepository.create({
-            nom: data.nom,
-            date: data.date,
-            lieu: data.lieu,
-            participants: data.participants || 0,
-            statut: data.statut || "planifié",
-        });
+    async createTournament(data: Omit<Tournament, "_id">) {
+        try {
+            const existing = await tournamentRepository.oneTournament({nom:data.nom});
+            if (existing) {
+                throw new Error('Un tournoi avec ce nom existe déjà')
+            }
+            const newTournament = await tournamentRepository.createTournament(data);
+            return newTournament;
+        } catch (error) {
+      console.error("CreateTournamentService", error);
+      throw error;
+    }
     }
 
-    update(id: number, data: Tournament) {
-        const tournoi = tournamentRepository.update(id, data);
-        if (!tournoi) throw new Error("Tournoi non trouvé");
-        return tournoi;
+    async updateTournament(
+        id: string,
+        updateData: Partial<Omit<Tournament, "_id">>
+    ) {
+    try {
+      const updated = await tournamentRepository.updateTournament(id, updateData);
+      if (!updated) {
+        throw new Error("Tournoi non trouvé ou non modifié");
+      }
+      return updated;
+    } catch (error) {
+      console.error("UpdateTournamentService", error);
+      throw error;
     }
+  }
 
-    delete(id: number) {
-        const tournoi = tournamentRepository.delete(id);
-        if (!tournoi) throw new Error("Tournoi non trouvé");
-        return tournoi;
+    async deleteTournament(id: string) {
+    try {
+      const deleted = await tournamentRepository.deleteTournament(id);
+      if (!deleted) {
+        throw new Error("Tournoi non trouvé");
+      }
+      return deleted;
+    } catch (error) {
+      console.error("DeleteTournamentService", error);
+      throw error;
     }
+  }
 }
 
 export default new TournamentService();

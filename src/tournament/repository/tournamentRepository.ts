@@ -1,60 +1,68 @@
-import { Tournament } from "../interface/tournamentInterface.js";
+import { Tournament } from "../interface/tournamentInterface";
+import mongoose from "mongoose";
+import { tournamentModel } from "../../databases/models/tournamentModel";
+
 
 class TournamentRepository {
-    private lastIndex: number = 2;
 
-    private tournaments: Tournament[] = [
-        {
-            id: 1,
-            nom: "champions valorant",
-            date: "2025-09-15",
-            lieu: "Paris",
-            participants: 16,
-            statut: "terminé",
-        },
-        {
-            id: 2,
-            nom: "rlcs",
-            date: "2025-09-20",
-            lieu: "monde",
-            participants: 8,
-            statut: "terminé",
-        },
-    ];
-
-
-    getAll(): Tournament[] {
-        return this.tournaments;
-    }
-
-    getById(id: number): Tournament | undefined {
-        return this.tournaments.find((t) => t.id === id);
-    }
-
-    create(data: Omit<Tournament, "id">): Tournament {
-        const nouveauTournoi: Tournament = {
-            id: ++this.lastIndex,
-            ...data,
-        };
-        this.tournaments.push(nouveauTournoi);
-        return nouveauTournoi;
-    }
-
-    update(id: number, data: Partial<Tournament>): Tournament | null {
-        const index = this.tournaments.findIndex((t) => t.id === id);
-        if (index === -1) return null;
-
-        this.tournaments[index] = { ...this.tournaments[index], ...data };
-        return this.tournaments[index];
-    }
-
-    delete(id: number): Tournament | null {
-        const index = this.tournaments.findIndex((t) => t.id === id);
-        if (index === -1) return null;
-
-        const [deleted] = this.tournaments.splice(index, 1);
-        return deleted;
+allTournament = async (filters: Partial<Tournament>) => {
+    try {
+        const allTournaments = await tournamentModel.find(filters);
+        console.log(allTournaments);
+        return allTournaments;
+    } catch(error) {
+        console.log('AllTournamentRepo', error)
+        throw error
     }
 }
 
+oneTournament = async (filters: Partial<Tournament>) => {
+    try {
+        const oneTournament = await tournamentModel.findOne(filters);
+        console.log(oneTournament);
+        return oneTournament;
+    } catch(error) {
+        console.log('OneTournamentRepo', error)
+        throw error
+    }
+}
+
+
+createTournament = async (tournament: Tournament) => {
+    try {
+        const newTournament = await tournamentModel.create(tournament)
+        console.log(newTournament);
+        return newTournament;
+    } catch(error) {
+        console.log('CreateTournamentRepo', error)
+        throw error
+    }
+}
+
+updateTournament = async (id: string, updateData: Partial<Tournament>) => {
+    try {
+        const modifiedTournament = await tournamentModel.findByIdAndUpdate(id, updateData, {new: true} )
+        console.log(modifiedTournament);
+        return modifiedTournament;
+    } catch(error) {
+        console.log('ModifTournamentRepo', error)
+        throw error
+}
+}
+
+deleteTournament = async (id:string) => {
+    try {
+        const deletedTournament = await tournamentModel.findByIdAndDelete(id);
+        console.log(deletedTournament);
+        return deletedTournament
+    } catch(error) {
+        console.log('DeleteTournamentRepo', error)
+        throw error
+}
+}
+}
+
 export default new TournamentRepository();
+
+
+

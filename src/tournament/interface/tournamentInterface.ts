@@ -1,5 +1,5 @@
 export interface Tournament {
-    id: number;
+    _id?: number;
     nom: string;
     date: string;
     lieu: string;
