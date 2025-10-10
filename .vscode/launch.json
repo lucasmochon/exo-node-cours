@@ -39,7 +39,10 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
-                "dev"
+                "dev",
+                "--",
+                "--port",
+                "3001"
             ],
             "cwd": "${workspaceFolder}/frontend",
             "skipFiles": [
