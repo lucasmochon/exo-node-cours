@@ -1,14 +1,17 @@
 import express from "express";
 import mongoose from "mongoose";
 import tournamentRoutes from "./tournament/routes/tournamentRoutes";
+import userRoutes from "./user/routes/userRoutes";
 import dotenv from "dotenv";
+import { authenticateToken } from "./middlewares/authMiddlewares";
 
 dotenv.config({ path: '.env' });
 const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use("/", tournamentRoutes);
+app.use('/api/tournaments', authenticateToken, tournamentRoutes);
+app.use('/api/users', userRoutes);
 const uri = "mongodb+srv://mochonlucas_db_user:lYAiJIx5wDWyBUeU@tournament.0n25n67.mongodb.net/?retryWrites=true&w=majority&appName=tournament";
 
 mongoose.connect(uri)
@@ -20,4 +23,4 @@ mongoose.connect(uri)
     })
     .catch(() => {
         console.log('Erreur de connexion à a base de donnée')
-    }) 
+    })
