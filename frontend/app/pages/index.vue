@@ -1,6 +1,7 @@
 <template>
-  <div></div>
+  <div><CustomNavbar /></div>
 </template>
 
 <script setup></script>
-<script scoped></script>
+
+<style></style>

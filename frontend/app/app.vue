@@ -1,11 +1,12 @@
 <template>
-  <div>
-      <NuxtLayout> 
-          <NuxtPage/>
-      </NuxtLayout>
-  </div>
+  <v-app>
+    <Navbar />
+    <v-main>
+      <NuxtPage />
+    </v-main>
+  </v-app>
 </template>
 
-<script setup></script>
-
-<script scoped></script>
+<script setup>
+import Navbar from "../app/components/CustomNavbar.vue";
+</script>
