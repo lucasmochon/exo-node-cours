@@ -1,7 +1,8 @@
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div>
+    <slot />
+  </div>
+  
 </template>
 
 <script setup>
@@ -11,4 +12,3 @@
 <style scoped>
 
 </style>
-
