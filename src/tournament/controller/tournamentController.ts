@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import tournamentService from "../service/tournamentService";
+import tournamentService from "../services/tournamentService";
 import { CustomError } from '../../utils/customError';
 
 class TournamentController {

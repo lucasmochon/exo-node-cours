@@ -1,6 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import tournamentRoutes from "./tournament/routes/tournamentRoutes";
+import authRoutes from "./tournament/routes/authRoutes";
+import secureRoutes from "./tournament/routes/secureRoutes";
 import dotenv from "dotenv";
 
 dotenv.config({ path: '../.env' });
@@ -8,6 +10,8 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api", secureRoutes);
 app.use("/", tournamentRoutes);
 const uri = 'mongodb+srv://valentinhardy56_db_user:NI5Ao8f0Yjo6v3g6@cluster0.jizx1b2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 
